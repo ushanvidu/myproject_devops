@@ -5,7 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKERHUB_USERNAME = 'ushanvidu'
         PATH = "/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
-        JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home"
+
 
         FRONTEND_IMAGE = "frontend"
         BACKEND_IMAGE = "backend"
