@@ -13,7 +13,7 @@ RUN npm install
 # Copy the rest of the project
 COPY . .
 
-# Expose Vite dev server port
+# Expose Vite dev backend port
 EXPOSE 5173
 
 # Start Vite in dev mode

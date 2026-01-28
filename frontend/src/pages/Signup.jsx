@@ -1,13 +1,17 @@
 import { useState } from "react";
-import {useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase";
+import { UserPlus } from "lucide-react";
 
 export default function Signup() {
     const [fullname, setFullname] = useState("");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
@@ -15,6 +19,7 @@ export default function Signup() {
         e.preventDefault();
         setError("");
         setSuccess("");
+        setLoading(true);
 
         try {
             const res = await fetch("http://localhost:8000/api/auth/register", {
@@ -25,85 +30,149 @@ export default function Signup() {
 
             const data = await res.json();
             if (!res.ok) {
-                setError(data.msg || data.message || "Signup failed");
-                return;
+                throw new Error(data.msg || data.message || "Signup failed");
             }
-            setSuccess("User registered successfully ✅");
-            console.log("Registered user:", data.data.user);
 
-            navigate("/home", { state: { user: data.data.user } });
+            setSuccess("Account created successfully!");
+            setTimeout(() => {
+                navigate("/home", { state: { user: data.data.user } });
+            }, 1000);
+
         } catch (err) {
             console.error("Signup error:", err);
-            setError("Something went wrong");
+            setError(err.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleSignup = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            // In a real app, you would POST this data to your backend register endpoint here
+            navigate("/home", {
+                state: {
+                    user: {
+                        fullname: user.displayName,
+                        email: user.email,
+                        role: 'user',
+                        image: user.photoURL
+                    }
+                }
+            });
+        } catch (error) {
+            setError("Google Signup Failed");
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-                    Sign Up
-                </h2>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4">
+            <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border border-white/50 backdrop-blur-sm">
 
-                {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-                {success && <p className="text-green-600 text-sm mb-3">{success}</p>}
+                <div className="text-center mb-8">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+                    <p className="text-gray-500 text-sm">Join Unbox You today and start gifting</p>
+                </div>
+
+                {error && (
+                    <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4 text-center">
+                        {error}
+                    </div>
+                )}
+                {success && (
+                    <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg mb-4 text-center">
+                        {success}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-gray-700 mb-1">Full Name</label>
-                        <input
-                            type="text"
-                            value={fullname}
-                            onChange={(e) => setFullname(e.target.value)}
-                            required
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                            placeholder="Enter your full name"
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Full Name</label>
+                            <input
+                                type="text"
+                                value={fullname}
+                                onChange={(e) => setFullname(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                placeholder="John Doe"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Username</label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                placeholder="johnny"
+                            />
+                        </div>
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1">Username</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                            placeholder="Choose a username"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-gray-700 mb-1">Email</label>
+                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Email</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                            placeholder="Enter your email"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                            placeholder="name@company.com"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1">Password</label>
+                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Password</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                            placeholder="Enter a password"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                            placeholder="••••••••"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
+                        disabled={loading}
+                        className="w-full bg-pink-600 text-white py-3.5 rounded-xl font-bold hover:bg-pink-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-2"
                     >
-                        Sign Up
+                        {loading ? "Creating Account..." : (
+                            <>
+                                Sign Up <UserPlus size={18} />
+                            </>
+                        )}
                     </button>
                 </form>
+
+                <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">Or sign up with</span>
+                    </div>
+                </div>
+
+                <button
+                    onClick={handleGoogleSignup}
+                    type="button"
+                    className="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-3"
+                >
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+                    Google
+                </button>
+
+                <p className="text-center text-gray-600 mt-6 text-sm">
+                    Already have an account?{" "}
+                    <Link to="/" className="text-purple-600 font-bold hover:text-purple-700 hover:underline">
+                        Log in
+                    </Link>
+                </p>
             </div>
         </div>
     );
