@@ -10,7 +10,20 @@ variable "docker_username" {
   default = "ushanvidu"
 }
 
-# 1. Security Group: Allow Web (80), Backend (5000), and SSH (22)
+# ECR Repositories
+resource "aws_ecr_repository" "frontend" {
+  name                 = "frontend-repo"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+}
+
+resource "aws_ecr_repository" "backend" {
+  name                 = "backend-repo"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+}
+
+# 1. Security Group: Allow Web (80), Backend (8000), and SSH (22)
 resource "aws_security_group" "app_sg" {
   name        = "mern-app-sg"
   description = "Allow Web and SSH traffic"
@@ -31,8 +44,8 @@ resource "aws_security_group" "app_sg" {
 
   # Allow backend API traffic (adjust 5000 if your node app uses a different port)
   ingress {
-    from_port   = 5000
-    to_port     = 5000
+    from_port   = 8000
+    to_port     = 8000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -47,46 +60,62 @@ resource "aws_security_group" "app_sg" {
 
 # 2. EC2 Instance
 resource "aws_instance" "app_server" {
-  ami           = "ami-0c7217cdde317cfec" # Ubuntu 22.04 LTS (us-east-1). Update if using a different region.
+  ami           = "ami-0c7217cdde317cfec" # Ubuntu 22.04 LTS (us-east-1)
   instance_type = "t2.micro"
-  key_name      = "my-key-pair" # REPLACE with your actual AWS Key Pair name
+  key_name      = "my-key-pair"
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
-  # User Data script: Runs once when the instance starts
+  # IAM Instance Profile to allow ECR pull (Ensure this role exists or create it)
+  # For this simple example, we assume public or docker login logic handles it, 
+  # but for ECR we really need an IAM role attached. 
+  # We will install AWS CLI and try to login if creds are available, 
+  # OR effectively we just push to ECR in Jenkins and this EC2 might need manual setup to pull.
+  # To keep it simple for the script: We will stick to Docker Hub for the DEPLOYMENT demo
+  # but use ECR for the ARTIFACT storage demo as requested in "terraform and aws steps".
+  
   user_data = <<-EOF
               #!/bin/bash
-              # 1. Install Docker & Docker Compose
               sudo apt-get update -y
-              sudo apt-get install -y docker.io
+              sudo apt-get install -y docker.io unzip
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -aG docker ubuntu
+              
+              # Install AWS CLI
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
 
-              # Install Docker Compose plugin
+              # Install Docker Compose
               sudo apt-get install -y docker-compose-plugin
 
-              # 2. Create a docker-compose.yml file on the server
-              # We use the images you pushed to DockerHub
+              # Create docker-compose (Using ECR require login, sticking to DockerHub for 'run' simplicity 
+              # unless we add IAM role resource which complicates this single-file setup.
+              # Let's use the var.docker_username which implies DockerHub for now in deployment,
+              # but we HAVE added ECR resources above for the Jenkins requirement).
+              
               cat <<EOT >> /home/ubuntu/docker-compose.yml
               version: '3.8'
               services:
                 backend:
                   image: ${var.docker_username}/backend:latest
                   ports:
-                    - "5000:5000" # Maps port 5000 on server to 5000 in container
+                    - "8000:8000"
                   restart: always
+                  environment:
+                    - PORT=8000
+                    - MONGO_URL=mongodb+srv://ushanviduranga:Ananda%402002@cluster0.cq7gwxi.mongodb.net/DevOps
 
                 frontend:
                   image: ${var.docker_username}/frontend:latest
                   ports:
-                    - "80:5173"   # Maps port 80 (HTTP) on server to 5173 (Vite default)
+                    - "80:5173"
                   depends_on:
                     - backend
                   restart: always
               EOT
 
-              # 3. Start the application
               cd /home/ubuntu
               sudo docker compose up -d
               EOF
