@@ -2,42 +2,26 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCOUNT_ID = credentials('aws-account-id') // Ensure this credential exists in Jenkins
-        AWS_DEFAULT_REGION = 'us-east-1'
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-        FRONTEND_REPO = "frontend-repo"
-        BACKEND_REPO = "backend-repo"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        DOCKERHUB_USERNAME = 'ushanvidu'
         PATH = "/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
+
+
+        FRONTEND_IMAGE = "frontend"
+        BACKEND_IMAGE = "backend"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/ushanvidu/myproject_devops.git'
             }
         }
 
-        stage('Terraform Init & Apply') {
-            steps {
-                dir('terraform') {
-                    sh 'terraform init'
-                    sh 'terraform plan -out=tfplan'
-                    // In a real pipeline, you might want a manual approval step here
-                    // input message: 'Apply Terraform?', ok: 'Yes'
-                    sh 'terraform apply -auto-approve tfplan'
-                }
-            }
-        }
 
-        stage('Login to AWS ECR') {
-            steps {
-                script {
-                    sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                }
-            }
-        }
 
-        stage('Build Docker Images') {
+        stage('Build Docker Images Using Compose') {
             steps {
                 script {
                     sh "docker compose build"
@@ -45,23 +29,31 @@ pipeline {
             }
         }
 
-        stage('Tag Images for ECR') {
+        stage('Tag Images') {
             steps {
                 script {
                     sh """
-                    docker tag frontend:latest ${ECR_REGISTRY}/${FRONTEND_REPO}:latest
-                    docker tag backend:latest ${ECR_REGISTRY}/${BACKEND_REPO}:latest
+                    docker tag ${FRONTEND_IMAGE}:latest ${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE}:latest
+                    docker tag ${BACKEND_IMAGE}:latest ${DOCKERHUB_USERNAME}/${BACKEND_IMAGE}:latest
                     """
                 }
             }
         }
 
-        stage('Push Images to ECR') {
+        stage('Login to Docker Hub') {
+            steps {
+                script {
+                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                }
+            }
+        }
+
+        stage('Push Images to Docker Hub') {
             steps {
                 script {
                     sh """
-                    docker push ${ECR_REGISTRY}/${FRONTEND_REPO}:latest
-                    docker push ${ECR_REGISTRY}/${BACKEND_REPO}:latest
+                    docker push ${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE}:latest
+                    docker push ${DOCKERHUB_USERNAME}/${BACKEND_IMAGE}:latest
                     """
                 }
             }
