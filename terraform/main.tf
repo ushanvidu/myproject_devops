@@ -46,7 +46,7 @@ resource "aws_security_group" "app_sg" {
 # 2. EC2 Instance
 resource "aws_instance" "app_server" {
   ami           = "ami-0c7217cdde317cfec" # Ubuntu 22.04 (us-east-1)
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = "my-key-pair" # MAKE SURE THIS EXISTS IN AWS CONSOLE
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
