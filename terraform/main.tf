@@ -7,7 +7,6 @@ variable "docker_username" {
   default = "ushanvidu"
 }
 
-# 1. Security Group
 resource "aws_security_group" "app_sg" {
   name        = "mern-app-sg"
   description = "Allow Web and SSH traffic"
@@ -41,7 +40,6 @@ resource "aws_security_group" "app_sg" {
   }
 }
 
-# 2. EC2 Instance
 resource "aws_instance" "app_server" {
   ami           = "ami-0c7217cdde317cfec" # Ubuntu 22.04 (us-east-1)
   instance_type = "t3.micro"
@@ -49,18 +47,27 @@ resource "aws_instance" "app_server" {
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
-  # Boot script: Installs Docker and creates the compose file
+  # This script runs AUTOMATICALLY when the server starts
   user_data = <<-EOF
               #!/bin/bash
-              # Update and Install Docker
+              # 1. Update and install Docker & Docker Compose
               sudo apt-get update -y
-              sudo apt-get install -y docker.io docker-compose
+              sudo apt-get install -y docker.io
+
+              # Install standalone docker-compose (fixes plugin issues)
+              sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -aG docker ubuntu
 
-              # Create docker-compose.yml
-              cat <<EOT >> /home/ubuntu/docker-compose.yml
+              # 2. Setup the application directory
+              mkdir -p /home/ubuntu
+              cd /home/ubuntu
+
+              # 3. Create docker-compose.yml
+              cat <<EOT >> docker-compose.yml
               version: '3.8'
               services:
                 backend:
@@ -80,32 +87,15 @@ resource "aws_instance" "app_server" {
                     - backend
                   restart: always
               EOT
+
+              # 4. Pull and Start the App
+              # We use the full path to ensure it runs correctly in the boot script
+              /usr/local/bin/docker-compose pull
+              /usr/local/bin/docker-compose up -d
               EOF
 
   tags = {
     Name = "Jenkins-MERN-App"
-  }
-
-  # AUTOMATION: Connects to the server and starts the app
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Waiting for cloud-init to finish...'",
-      # Wait loop: Ensures Docker is fully installed before running commands
-      "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 2; done",
-
-      "echo 'Starting Application...'",
-      "cd /home/ubuntu",
-      # Pull latest images and force restart
-      "sudo docker-compose pull",
-      "sudo docker-compose up -d"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file("./my-key-pair.pem") # Uses the key copied by Jenkins
-      host        = self.public_ip
-    }
   }
 }
 

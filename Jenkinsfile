@@ -47,24 +47,14 @@ pipeline {
         }
 
         stage('Deploy with Terraform') {
-            steps {
-                // Get the secret key file from Jenkins and use it in Terraform
-                withCredentials([file(credentialsId: 'ssh-key-file', variable: 'SSH_KEY')]) {
-                    dir('terraform') {
-                        // 1. Copy key to workspace and set permissions
-                        sh 'cp $SSH_KEY ./my-key-pair.pem'
-                        sh 'chmod 400 ./my-key-pair.pem'
-
-                        // 2. Initialize and Apply
-                        sh 'terraform init'
-                        sh "terraform apply -auto-approve -var='docker_username=${DOCKERHUB_USERNAME}'"
-
-                        // 3. Clean up key for security
-                        sh 'rm -f ./my-key-pair.pem'
+                    steps {
+                        dir('terraform') {
+                            sh 'terraform init'
+                            // We removed the SSH_KEY parts. Terraform handles the rest.
+                            sh "terraform apply -auto-approve -var='docker_username=${DOCKERHUB_USERNAME}'"
+                        }
                     }
                 }
-            }
-        }
 
         stage('Clean Up') {
             steps {
