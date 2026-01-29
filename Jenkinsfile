@@ -5,100 +5,61 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKERHUB_USERNAME = 'ushanvidu'
         
-        // AWS Credentials for Terraform
+        // AWS Credentials are auto-injected for Terraform
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        
+
         PATH = "/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
-
-
         FRONTEND_IMAGE = "frontend"
         BACKEND_IMAGE = "backend"
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/ushanvidu/myproject_devops.git'
             }
         }
 
-
-
-        stage('Build Docker Images Using Compose') {
+        stage('Build Docker Images') {
             steps {
-                script {
-                    sh "docker compose build"
-                }
+                sh "docker compose build"
             }
         }
 
-        stage('Tag Images') {
+        stage('Push to Docker Hub') {
             steps {
-                script {
-                    sh """
-                    docker tag ${FRONTEND_IMAGE}:latest ${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE}:latest
-                    docker tag ${BACKEND_IMAGE}:latest ${DOCKERHUB_USERNAME}/${BACKEND_IMAGE}:latest
-                    """
-                }
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                sh """
+                docker tag ${FRONTEND_IMAGE}:latest ${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE}:latest
+                docker tag ${BACKEND_IMAGE}:latest ${DOCKERHUB_USERNAME}/${BACKEND_IMAGE}:latest
+                docker push ${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE}:latest
+                docker push ${DOCKERHUB_USERNAME}/${BACKEND_IMAGE}:latest
+                """
             }
         }
 
-        stage('Login to Docker Hub') {
-            steps {
-                script {
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                }
-            }
-        }
-
-        stage('Push Images to Docker Hub') {
-            steps {
-                script {
-                    sh """
-                    docker push ${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE}:latest
-                    docker push ${DOCKERHUB_USERNAME}/${BACKEND_IMAGE}:latest
-                    """
-                }
-            }
-        }
-
-        stage('Terraform Init') {
+        stage('Deploy with Terraform') {
             steps {
                 dir('terraform') {
+                    // Initialize Terraform
                     sh 'terraform init'
-                }
-            }
-        }
 
-        stage('Terraform Plan') {
-            steps {
-                dir('terraform') {
-                    sh "terraform plan -var='docker_username=${DOCKERHUB_USERNAME}'"
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                dir('terraform') {
-                    // Auto-approve for automation; in production, you might want a manual approval step
+                    // Apply changes using the Docker Hub username
                     sh "terraform apply -auto-approve -var='docker_username=${DOCKERHUB_USERNAME}'"
                 }
-            }
-        }
-
-        stage('Clean Up') {
-            steps {
-                sh 'docker system prune -af'
             }
         }
     }
 
     post {
         always {
-            sh 'docker logout'
+            // FIX: Wrap in 'node' to prevent "MissingContextVariableException"
+            node {
+                sh 'docker logout || true'
+                // Be careful pruning here; don't delete the terraform state file!
+                sh 'docker system prune -f'
+            }
         }
     }
 }

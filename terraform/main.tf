@@ -1,29 +1,13 @@
-# terraform/main.tf
-
 provider "aws" {
-  region = "us-east-1" # Make sure this matches your Jenkinsfile region
+  region = "us-east-1"
 }
 
-# Variable to accept the username from Jenkins
 variable "docker_username" {
   type    = string
   default = "ushanvidu"
 }
 
-# ECR Repositories
-resource "aws_ecr_repository" "frontend" {
-  name                 = "frontend-repo"
-  image_tag_mutability = "MUTABLE"
-  force_delete         = true
-}
-
-resource "aws_ecr_repository" "backend" {
-  name                 = "backend-repo"
-  image_tag_mutability = "MUTABLE"
-  force_delete         = true
-}
-
-# 1. Security Group: Allow Web (80), Backend (8000), and SSH (22)
+# 1. Security Group
 resource "aws_security_group" "app_sg" {
   name        = "mern-app-sg"
   description = "Allow Web and SSH traffic"
@@ -35,6 +19,7 @@ resource "aws_security_group" "app_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Frontend Port
   ingress {
     from_port   = 80
     to_port     = 80
@@ -42,7 +27,7 @@ resource "aws_security_group" "app_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow backend API traffic (adjust 5000 if your node app uses a different port)
+  # Backend Port (8000 matches your user_data)
   ingress {
     from_port   = 8000
     to_port     = 8000
@@ -60,41 +45,24 @@ resource "aws_security_group" "app_sg" {
 
 # 2. EC2 Instance
 resource "aws_instance" "app_server" {
-  ami           = "ami-0c7217cdde317cfec" # Ubuntu 22.04 LTS (us-east-1)
+  ami           = "ami-0c7217cdde317cfec" # Ubuntu 22.04 (us-east-1)
   instance_type = "t2.micro"
-  key_name      = "my-key-pair"
+  key_name      = "my-key-pair" # MAKE SURE THIS EXISTS IN AWS CONSOLE
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
-  # IAM Instance Profile to allow ECR pull (Ensure this role exists or create it)
-  # For this simple example, we assume public or docker login logic handles it, 
-  # but for ECR we really need an IAM role attached. 
-  # We will install AWS CLI and try to login if creds are available, 
-  # OR effectively we just push to ECR in Jenkins and this EC2 might need manual setup to pull.
-  # To keep it simple for the script: We will stick to Docker Hub for the DEPLOYMENT demo
-  # but use ECR for the ARTIFACT storage demo as requested in "terraform and aws steps".
-  
   user_data = <<-EOF
               #!/bin/bash
               sudo apt-get update -y
-              sudo apt-get install -y docker.io unzip
+              sudo apt-get install -y docker.io
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -aG docker ubuntu
-              
-              # Install AWS CLI
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
-              sudo ./aws/install
 
-              # Install Docker Compose
+              # Install Docker Compose Plugin
               sudo apt-get install -y docker-compose-plugin
 
-              # Create docker-compose (Using ECR require login, sticking to DockerHub for 'run' simplicity 
-              # unless we add IAM role resource which complicates this single-file setup.
-              # Let's use the var.docker_username which implies DockerHub for now in deployment,
-              # but we HAVE added ECR resources above for the Jenkins requirement).
-              
+              # Create docker-compose.yml
               cat <<EOT >> /home/ubuntu/docker-compose.yml
               version: '3.8'
               services:
@@ -116,6 +84,7 @@ resource "aws_instance" "app_server" {
                   restart: always
               EOT
 
+              # Run the app
               cd /home/ubuntu
               sudo docker compose up -d
               EOF
