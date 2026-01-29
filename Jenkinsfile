@@ -4,6 +4,11 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKERHUB_USERNAME = 'ushanvidu'
+        
+        // AWS Credentials for Terraform
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        
         PATH = "/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
 
 
@@ -55,6 +60,31 @@ pipeline {
                     docker push ${DOCKERHUB_USERNAME}/${FRONTEND_IMAGE}:latest
                     docker push ${DOCKERHUB_USERNAME}/${BACKEND_IMAGE}:latest
                     """
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('terraform') {
+                    sh "terraform plan -var='docker_username=${DOCKERHUB_USERNAME}'"
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform') {
+                    // Auto-approve for automation; in production, you might want a manual approval step
+                    sh "terraform apply -auto-approve -var='docker_username=${DOCKERHUB_USERNAME}'"
                 }
             }
         }
