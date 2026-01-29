@@ -24,29 +24,6 @@ export default function Home() {
             });
     }, []);
 
-    const handlePurchase = async (product) => {
-        if (!user) {
-            alert("Please login to purchase items!");
-            navigate('/');
-            return;
-        }
-
-        try {
-            const res = await fetch('http://localhost:8000/api/products/purchase', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user: user,
-                    productId: product._id,
-                    quantity: 1
-                })
-            });
-            if (res.ok) alert(`Success! You bought the ${product.name}`);
-        } catch (err) {
-            alert("Purchase failed");
-        }
-    };
-
     return (
         <div className="min-h-screen bg-white font-sans text-gray-900">
             {/* 1. Navbar (Passed user prop to handle login state) */}

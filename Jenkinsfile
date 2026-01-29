@@ -9,10 +9,9 @@ pipeline {
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
 
-        // --- FIX: IGNORE BROKEN LOCAL CREDENTIALS FILE ---
+        // Fix for Terraform local credentials conflict
         AWS_SHARED_CREDENTIALS_FILE = '/dev/null'
         AWS_CONFIG_FILE             = '/dev/null'
-        // -------------------------------------------------
 
         PATH = "/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
         FRONTEND_IMAGE = "frontend"
@@ -27,12 +26,13 @@ pipeline {
         }
 
         stage('Build Docker Images') {
-                    steps {
-                        // Specify the platform as linux/amd64 for AWS compatibility
-                        sh 'docker build --platform linux/amd64 -t $FRONTEND_IMAGE:latest ./frontend'
-                        sh 'docker build --platform linux/amd64 -t $BACKEND_IMAGE:latest ./backend'
-                    }
-                }
+            steps {
+                // Force AMD64 platform for AWS compatibility
+                sh 'docker build --platform linux/amd64 -t $FRONTEND_IMAGE:latest ./frontend'
+                sh 'docker build --platform linux/amd64 -t $BACKEND_IMAGE:latest ./backend'
+            }
+        }
+
         stage('Push to Docker Hub') {
             steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
@@ -48,9 +48,20 @@ pipeline {
 
         stage('Deploy with Terraform') {
             steps {
-                dir('terraform') {
-                    sh 'terraform init'
-                    sh "terraform apply -auto-approve -var='docker_username=${DOCKERHUB_USERNAME}'"
+                // Get the secret key file from Jenkins and use it in Terraform
+                withCredentials([file(credentialsId: 'ssh-key-file', variable: 'SSH_KEY')]) {
+                    dir('terraform') {
+                        // 1. Copy key to workspace and set permissions
+                        sh 'cp $SSH_KEY ./my-key-pair.pem'
+                        sh 'chmod 400 ./my-key-pair.pem'
+
+                        // 2. Initialize and Apply
+                        sh 'terraform init'
+                        sh "terraform apply -auto-approve -var='docker_username=${DOCKERHUB_USERNAME}'"
+
+                        // 3. Clean up key for security
+                        sh 'rm -f ./my-key-pair.pem'
+                    }
                 }
             }
         }

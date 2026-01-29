@@ -62,6 +62,7 @@ export default function Signup() {
                 }
             });
         } catch (error) {
+            console.error(error);
             setError("Google Signup Failed");
         }
     };

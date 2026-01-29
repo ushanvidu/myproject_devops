@@ -27,7 +27,7 @@ export default function ProductDetails() {
                 setRelated(others);
                 setLoading(false);
             })
-            .catch(err => setLoading(false));
+            .catch(() => setLoading(false));
     }, [id]);
 
     const handlePurchase = async () => {
@@ -52,6 +52,7 @@ export default function ProductDetails() {
                 alert("Failed to add to cart");
             }
         } catch (err) {
+            console.log(err);
             alert("Error adding to cart");
         }
     };

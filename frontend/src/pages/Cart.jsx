@@ -15,25 +15,26 @@ export default function Cart() {
             navigate('/');
             return;
         }
-        fetchCart();
-    }, [user]);
 
-    const fetchCart = () => {
-        fetch('http://localhost:8000/api/cart/list', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user })
-        })
-            .then(res => res.json())
-            .then(data => {
-                setCartItems(data);
-                setLoading(false);
+        const fetchCart = () => {
+            fetch('http://localhost:8000/api/cart/list', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user })
             })
-            .catch(err => {
-                console.error(err);
-                setLoading(false);
-            });
-    };
+                .then(res => res.json())
+                .then(data => {
+                    setCartItems(data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setLoading(false);
+                });
+        };
+
+        fetchCart();
+    }, [user, navigate]);
 
     const handleRemove = async (productId) => {
         try {
