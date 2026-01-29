@@ -27,12 +27,12 @@ pipeline {
         }
 
         stage('Build Docker Images') {
-            steps {
-                sh 'docker build -t $FRONTEND_IMAGE:latest ./frontend'
-                sh 'docker build -t $BACKEND_IMAGE:latest ./backend'
-            }
-        }
-
+                    steps {
+                        // Specify the platform as linux/amd64 for AWS compatibility
+                        sh 'docker build --platform linux/amd64 -t $FRONTEND_IMAGE:latest ./frontend'
+                        sh 'docker build --platform linux/amd64 -t $BACKEND_IMAGE:latest ./backend'
+                    }
+                }
         stage('Push to Docker Hub') {
             steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
