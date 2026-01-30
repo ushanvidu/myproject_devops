@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase"; // Import from your config
 import { LogIn, ArrowRight } from "lucide-react";
 import { API_BASE_URL } from "../config";
 
@@ -36,30 +34,6 @@ export default function Login() {
             setError(err.message || "Something went wrong");
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleGoogleLogin = async () => {
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-
-            // OPTIONAL: You might want to send this Google user to your backend here
-            // to store them in your MongoDB if they don't exist yet.
-
-            navigate("/home", {
-                state: {
-                    user: {
-                        fullname: user.displayName,
-                        email: user.email,
-                        role: 'user', // Default role
-                        image: user.photoURL
-                    }
-                }
-            });
-        } catch (error) {
-            console.error(error);
-            setError("Google Sign In Failed");
         }
     };
 
@@ -125,25 +99,6 @@ export default function Login() {
                         )}
                     </button>
                 </form>
-
-                <div className="relative my-8">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white text-gray-500">Or continue with</span>
-                    </div>
-                </div>
-
-                {/* Google Button */}
-                <button
-                    onClick={handleGoogleLogin}
-                    type="button"
-                    className="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-3"
-                >
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-                    Sign in with Google
-                </button>
 
                 <p className="text-center text-gray-600 mt-8 text-sm">
                     Don't have an account?{" "}
