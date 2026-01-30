@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Trash2, ArrowRight, ShoppingBag } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Cart() {
     const location = useLocation();
@@ -17,7 +18,7 @@ export default function Cart() {
         }
 
         const fetchCart = () => {
-            fetch('http://localhost:8000/api/cart/list', {
+            fetch(`${API_BASE_URL}/cart/list`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user })
@@ -38,7 +39,7 @@ export default function Cart() {
 
     const handleRemove = async (productId) => {
         try {
-            const res = await fetch('http://localhost:8000/api/cart/remove', {
+            const res = await fetch(`${API_BASE_URL}/cart/remove`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user, productId })
@@ -54,7 +55,7 @@ export default function Cart() {
 
     const handleCheckout = async () => {
         try {
-            const res = await fetch('http://localhost:8000/api/cart/checkout', {
+            const res = await fetch(`${API_BASE_URL}/cart/checkout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user })

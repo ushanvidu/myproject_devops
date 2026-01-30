@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase"; // Import from your config
 import { LogIn, ArrowRight } from "lucide-react";
+import { API_BASE_URL } from "../config";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/login", {
+            const res = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),

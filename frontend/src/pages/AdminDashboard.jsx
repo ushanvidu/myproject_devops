@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 export default function AdminDashboard() {
     const location = useLocation();
@@ -18,7 +19,7 @@ export default function AdminDashboard() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch('http://localhost:8000/api/products/add', {
+            const res = await fetch(`${API_BASE_URL}/products/add`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -45,19 +46,19 @@ export default function AdminDashboard() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text" placeholder="Product Name" className="w-full p-2 border rounded"
-                        value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                        value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
                     />
                     <input
                         type="text" placeholder="Description" className="w-full p-2 border rounded"
-                        value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
+                        value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}
                     />
                     <input
                         type="number" placeholder="Price" className="w-full p-2 border rounded"
-                        value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})}
+                        value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })}
                     />
                     <input
                         type="text" placeholder="Image URL (e.g., https://unsplash.com/...)" className="w-full p-2 border rounded"
-                        value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})}
+                        value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })}
                     />
                     <button type="submit" className="w-full bg-gray-900 text-white py-3 rounded hover:bg-gray-800">
                         Add Item & Log Action

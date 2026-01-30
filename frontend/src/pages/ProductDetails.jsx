@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingBag, Truck, ShieldCheck, RefreshCw } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { API_BASE_URL } from '../config';
 
 export default function ProductDetails() {
     const { id } = useParams();
@@ -17,7 +18,7 @@ export default function ProductDetails() {
         setLoading(true);
 
         // Fetch Product Details
-        fetch('http://localhost:8000/api/products') // Ideally strictly fetch one, but list is okay for small scale
+        fetch(`${API_BASE_URL}/products`) // Ideally strictly fetch one, but list is okay for small scale
             .then(res => res.json())
             .then(data => {
                 const found = data.find(p => p._id === id);
@@ -37,7 +38,7 @@ export default function ProductDetails() {
             return;
         }
         try {
-            const res = await fetch('http://localhost:8000/api/cart/add', {
+            const res = await fetch(`${API_BASE_URL}/cart/add`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user, productId: product._id, quantity: 1 })

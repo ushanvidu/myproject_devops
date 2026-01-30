@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Heart, Gift, Truck, Star, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar'; // Import the new Navbar
+import { API_BASE_URL } from '../config';
 
 export default function Home() {
     const location = useLocation();
@@ -12,7 +13,7 @@ export default function Home() {
 
     // Fetch Products from Backend
     useEffect(() => {
-        fetch('http://localhost:8000/api/products')
+        fetch(`${API_BASE_URL}/products`)
             .then(res => res.json())
             .then(data => {
                 setProducts(data);

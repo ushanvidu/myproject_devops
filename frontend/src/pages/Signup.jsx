@@ -4,6 +4,8 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import { UserPlus } from "lucide-react";
 
+import { API_BASE_URL } from "../config";
+
 export default function Signup() {
     const [fullname, setFullname] = useState("");
     const [username, setUsername] = useState("");
@@ -22,7 +24,7 @@ export default function Signup() {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/register", {
+            const res = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fullname, username, email, password }),
