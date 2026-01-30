@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
 import { UserPlus } from "lucide-react";
 
 import { API_BASE_URL } from "../config";
@@ -45,27 +43,6 @@ export default function Signup() {
             setError(err.message || "Something went wrong");
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleGoogleSignup = async () => {
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-            // In a real app, you would POST this data to your backend register endpoint here
-            navigate("/home", {
-                state: {
-                    user: {
-                        fullname: user.displayName,
-                        email: user.email,
-                        role: 'user',
-                        image: user.photoURL
-                    }
-                }
-            });
-        } catch (error) {
-            console.error(error);
-            setError("Google Signup Failed");
         }
     };
 
@@ -151,24 +128,6 @@ export default function Signup() {
                         )}
                     </button>
                 </form>
-
-                <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white text-gray-500">Or sign up with</span>
-                    </div>
-                </div>
-
-                <button
-                    onClick={handleGoogleSignup}
-                    type="button"
-                    className="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-3"
-                >
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-                    Google
-                </button>
 
                 <p className="text-center text-gray-600 mt-6 text-sm">
                     Already have an account?{" "}
