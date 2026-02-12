@@ -28,7 +28,7 @@ export default function Login() {
             }
 
             // Success
-            navigate("/home", { state: { user: data.data.user } });
+            navigate("/", { state: { user: data.data.user } });
         } catch (err) {
             console.error("Login error:", err);
             setError(err.message || "Something went wrong");

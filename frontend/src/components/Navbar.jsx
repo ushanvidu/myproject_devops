@@ -7,7 +7,7 @@ const Navbar = ({ user }) => {
 
     const handleLogout = () => {
         // Clear session (if you use localStorage later)
-        navigate('/home'); // Redirect to Login page
+        navigate('/'); // Redirect to Login page
     };
 
     return (
@@ -15,7 +15,7 @@ const Navbar = ({ user }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
                     {/* Logo */}
-                    <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/home')}>
+                    <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
                         <div className="w-8 h-8 bg-gradient-to-tr from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
                             <span className="text-white font-bold text-lg">U</span>
                         </div>

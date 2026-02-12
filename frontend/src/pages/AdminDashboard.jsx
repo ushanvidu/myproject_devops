@@ -38,7 +38,7 @@ export default function AdminDashboard() {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
-            <button onClick={() => navigate('/home', { state: { user } })} className="mb-4 text-blue-600 underline">
+            <button onClick={() => navigate('/', { state: { user } })} className="mb-4 text-blue-600 underline">
                 &larr; Back to Shop
             </button>
             <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow">

@@ -35,7 +35,7 @@ export default function Signup() {
 
             setSuccess("Account created successfully!");
             setTimeout(() => {
-                navigate("/home", { state: { user: data.data.user } });
+                navigate("/", { state: { user: data.data.user } });
             }, 1000);
 
         } catch (err) {

@@ -88,7 +88,7 @@ export default function Cart() {
                         <ShoppingBag size={48} className="mx-auto text-gray-300 mb-4" />
                         <h2 className="text-xl font-medium text-gray-900 mb-2">Your cart is empty</h2>
                         <p className="text-gray-500 mb-6">Looks like you haven't found the perfect gift yet.</p>
-                        <button onClick={() => navigate('/home', { state: { user } })} className="text-pink-600 font-bold hover:underline">
+                        <button onClick={() => navigate('/', { state: { user } })} className="text-pink-600 font-bold hover:underline">
                             Start Shopping
                         </button>
                     </div>
