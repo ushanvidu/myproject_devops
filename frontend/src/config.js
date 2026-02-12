@@ -1,2 +1,2 @@
-const hostname = window.location.hostname;
-export const API_BASE_URL = `http://${hostname}:8000/api`;
+
+export const API_BASE_URL = `http://18.207.117.161:8000/api`;
