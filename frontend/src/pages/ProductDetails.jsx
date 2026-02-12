@@ -81,6 +81,7 @@ export default function ProductDetails() {
                             <img
                                 src={product.image}
                                 alt={product.name}
+                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400?text=Gift'; }}
                                 className="w-full h-full object-center object-cover group-hover:scale-105 transition duration-500"
                             />
                         </div>
@@ -104,7 +105,7 @@ export default function ProductDetails() {
 
                         <div className="mt-6">
                             <h2 className="sr-only">Product information</h2>
-                            <p className="text-3xl text-gray-900 font-medium">${product.price}</p>
+                            <p className="text-3xl text-gray-900 font-medium">Rs. {product.price}</p>
                         </div>
 
                         <div className="mt-8">
@@ -155,10 +156,10 @@ export default function ProductDetails() {
                         {related.map(item => (
                             <div key={item._id} onClick={() => navigate(`/product/${item._id}`, { state: { user } })} className="cursor-pointer group">
                                 <div className="aspect-w-1 aspect-h-1 rounded-2xl overflow-hidden bg-gray-100 mb-4">
-                                    <img src={item.image} alt={item.name} className="object-cover w-full h-64 group-hover:scale-105 transition duration-500" />
+                                    <img src={item.image} alt={item.name} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400?text=Gift'; }} className="object-cover w-full h-64 group-hover:scale-105 transition duration-500" />
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 group-hover:text-pink-600 transition">{item.name}</h3>
-                                <p className="text-gray-500">${item.price}</p>
+                                <p className="text-gray-500">Rs. {item.price}</p>
                             </div>
                         ))}
                     </div>

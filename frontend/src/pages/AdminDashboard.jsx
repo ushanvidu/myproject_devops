@@ -60,6 +60,17 @@ export default function AdminDashboard() {
                         type="text" placeholder="Image URL (e.g., https://unsplash.com/...)" className="w-full p-2 border rounded"
                         value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })}
                     />
+                    {/* Image Preview */}
+                    {formData.image && (
+                        <div className="h-40 w-full overflow-hidden rounded bg-gray-100 mt-2">
+                            <img
+                                src={formData.image}
+                                alt="Preview"
+                                className="h-full w-full object-cover"
+                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400?text=Preview'; }}
+                            />
+                        </div>
+                    )}
                     <button type="submit" className="w-full bg-gray-900 text-white py-3 rounded hover:bg-gray-800">
                         Add Item & Log Action
                     </button>

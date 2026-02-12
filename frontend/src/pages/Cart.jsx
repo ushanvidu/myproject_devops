@@ -103,6 +103,7 @@ export default function Cart() {
                                                 <img
                                                     src={item.productId.image}
                                                     alt={item.productId.name}
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400?text=Gift'; }}
                                                     className="w-full h-full object-center object-cover"
                                                 />
                                             </div>
@@ -111,7 +112,7 @@ export default function Cart() {
                                                 <div>
                                                     <div className="flex justify-between text-base font-medium text-gray-900">
                                                         <h3>{item.productId.name}</h3>
-                                                        <p className="ml-4">${item.productId.price}</p>
+                                                        <p className="ml-4">Rs. {item.productId.price}</p>
                                                     </div>
                                                     <p className="mt-1 text-sm text-gray-500">{item.productId.category}</p>
                                                 </div>
@@ -142,7 +143,7 @@ export default function Cart() {
                                     <dl className="-my-4 text-sm divide-y divide-gray-100">
                                         <div className="py-4 flex items-center justify-between">
                                             <dt className="text-gray-600">Subtotal</dt>
-                                            <dd className="font-medium text-gray-900">${total.toFixed(2)}</dd>
+                                            <dd className="font-medium text-gray-900">Rs. {total.toFixed(2)}</dd>
                                         </div>
                                         <div className="py-4 flex items-center justify-between">
                                             <dt className="text-gray-600">Shipping</dt>
@@ -150,7 +151,7 @@ export default function Cart() {
                                         </div>
                                         <div className="py-4 flex items-center justify-between border-t border-gray-100">
                                             <dt className="text-base font-bold text-gray-900">Order Total</dt>
-                                            <dd className="text-base font-bold text-gray-900">${total.toFixed(2)}</dd>
+                                            <dd className="text-base font-bold text-gray-900">Rs. {total.toFixed(2)}</dd>
                                         </div>
                                     </dl>
                                 </div>

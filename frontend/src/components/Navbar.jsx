@@ -27,7 +27,7 @@ const Navbar = ({ user }) => {
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex space-x-8 items-center">
                         <a href="#shop" className="text-gray-600 hover:text-pink-600 font-medium transition">Shop</a>
-                        <a href="#about" className="text-gray-600 hover:text-pink-600 font-medium transition">About</a>
+                        <Link to="/about" className="text-gray-600 hover:text-pink-600 font-medium transition">About</Link>
 
                         {/* Dynamic User Section */}
                         <div className="flex items-center gap-4 ml-4">
@@ -56,7 +56,7 @@ const Navbar = ({ user }) => {
                                     </button>
                                 </>
                             ) : (
-                                <Link to="/">
+                                <Link to="/login">
                                     <button className="bg-gray-900 text-white px-6 py-2.5 rounded-full font-medium hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                         Login
                                     </button>

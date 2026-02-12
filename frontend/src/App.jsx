@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home"; // The file we just created
 import AdminDashboard from "./pages/AdminDashboard"; // The file we just created
+import About from "./pages/About";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
 
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/cart" element={<Cart />} />
             </Routes>

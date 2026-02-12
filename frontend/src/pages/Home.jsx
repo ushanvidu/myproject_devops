@@ -53,7 +53,9 @@ export default function Home() {
                         <a href="#shop" className="px-8 py-4 bg-gray-900 text-white rounded-full font-bold text-lg hover:bg-gray-800 transition shadow-xl hover:-translate-y-1 transform flex items-center gap-2">
                             Start Shopping <ArrowRight size={20} />
                         </a>
-                        <button className="px-8 py-4 bg-white text-gray-900 border border-gray-200 rounded-full font-bold text-lg hover:bg-gray-50 transition">
+                        <button
+                            onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
+                            className="px-8 py-4 bg-white text-gray-900 border border-gray-200 rounded-full font-bold text-lg hover:bg-gray-50 transition">
                             How it Works
                         </button>
                     </div>
@@ -61,7 +63,7 @@ export default function Home() {
             </header>
 
             {/* 3. Features Strip */}
-            <section className="py-12 border-y border-gray-100 bg-white">
+            <section id="about" className="py-12 border-y border-gray-100 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                         <div className="flex flex-col items-center p-4">
@@ -112,6 +114,7 @@ export default function Home() {
                                         <img
                                             src={product.image}
                                             alt={product.name}
+                                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400?text=Gift'; }}
                                             className="w-full h-full object-cover transform group-hover:scale-110 transition duration-700"
                                         />
                                         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-sm">
@@ -136,7 +139,7 @@ export default function Home() {
                                         <div className="flex items-center justify-between mt-auto">
                                             <div>
                                                 <span className="text-xs text-gray-400 uppercase font-bold tracking-wider">Price</span>
-                                                <div className="text-2xl font-bold text-gray-900">${product.price}</div>
+                                                <div className="text-2xl font-bold text-gray-900">Rs. {product.price}</div>
                                             </div>
                                             <div className="bg-gray-50 text-gray-900 w-12 h-12 rounded-full flex items-center justify-center group-hover:bg-pink-600 group-hover:text-white transition-all duration-300">
                                                 <ArrowRight size={20} />

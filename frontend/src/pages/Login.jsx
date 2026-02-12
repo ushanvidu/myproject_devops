@@ -73,7 +73,7 @@ export default function Login() {
                     <div>
                         <div className="flex justify-between items-center mb-1 ml-1">
                             <label className="block text-sm font-semibold text-gray-700">Password</label>
-                            <a href="#" className="text-xs text-pink-600 hover:underline">Forgot?</a>
+                            <a href="#" onClick={(e) => { e.preventDefault(); alert("Coming Soon!"); }} className="text-xs text-pink-600 hover:underline">Forgot?</a>
                         </div>
                         <input
                             type="password"
