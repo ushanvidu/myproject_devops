@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKERHUB_USERNAME = 'ushanvidu'
-        SERVER_IP = 'YOUR_EC2_PUBLIC_IP'
+        SERVER_IP = '18.207.117.161'
 
         FRONTEND_IMAGE = "frontend"
         BACKEND_IMAGE = "backend"
