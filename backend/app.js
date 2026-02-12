@@ -14,7 +14,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-    origin: ["http://54.173.156.158"],
+    origin: "*", // Allow all origins for dynamic IP support
     credentials: true
 }));
 
