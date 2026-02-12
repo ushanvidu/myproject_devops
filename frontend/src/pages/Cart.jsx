@@ -7,7 +7,7 @@ import { API_BASE_URL } from '../config';
 export default function Cart() {
     const location = useLocation();
     const navigate = useNavigate();
-    const user = location.state?.user; // In a real app, use Context or Redux
+    const [user, setUser] = useState(location.state?.user || null); // In a real app, use Context or Redux
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -47,6 +47,8 @@ export default function Cart() {
             if (res.ok) {
                 const updatedCart = await res.json();
                 setCartItems(updatedCart);
+                const updatedUser = { ...user, cart: updatedCart };
+                setUser(updatedUser);
             }
         } catch (err) {
             console.error(err);
@@ -63,6 +65,8 @@ export default function Cart() {
             if (res.ok) {
                 alert("Thank you for your purchase! Your gifts are on the way.");
                 setCartItems([]);
+                const updatedUser = { ...user, cart: [] };
+                setUser(updatedUser);
             }
         } catch (err) {
             console.error(err);

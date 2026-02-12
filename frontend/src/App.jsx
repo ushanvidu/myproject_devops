@@ -3,7 +3,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home"; // The file we just created
 import AdminDashboard from "./pages/AdminDashboard"; // The file we just created
-import About from "./pages/About";
+import About from "./pages/About.jsx";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 

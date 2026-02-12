@@ -8,7 +8,7 @@ export default function ProductDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const user = location.state?.user;
+    const [user, setUser] = useState(location.state?.user || null);
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [related, setRelated] = useState([]);
@@ -45,9 +45,12 @@ export default function ProductDetails() {
             });
 
             if (res.ok) {
+                const updatedCart = await res.json();
+                const updatedUser = { ...user, cart: updatedCart };
+                setUser(updatedUser);
                 const confirmed = window.confirm(`${product.name} added to cart! Go to Cart?`);
                 if (confirmed) {
-                    navigate('/cart', { state: { user } }); // Pass user state
+                    navigate('/cart', { state: { user: updatedUser } }); // Pass updated user state
                 }
             } else {
                 alert("Failed to add to cart");
