@@ -20,7 +20,7 @@ const Navbar = ({ user }) => {
                             <span className="text-white font-bold text-lg">U</span>
                         </div>
                         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">
-                            Unbox You
+                           Galle
                         </h1>
                     </div>
 
